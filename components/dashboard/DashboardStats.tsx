@@ -3,15 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, CheckCircle2, Clock3, Flame, PlayCircle, Trophy } from "lucide-react";
-import { courses } from "@/data/courses";
+import type { Course } from "@/data/courses";
 
 type ProgressRow = { course_slug: string; lesson_slug: string; completed_at?: string };
 type QuizRow = { course_slug: string; lesson_slug: string; score: number; attempted_at?: string };
 
-function readLocalProgress() {
+function readLocalProgress(courseList: Course[]) {
   const result: ProgressRow[] = [];
-  for (const course of courses) {
-    const saved = JSON.parse(localStorage.getItem(`utech-progress:${course.slug}` ) || "[]") as string[];
+  for (const course of courseList) {
+    const saved = JSON.parse(localStorage.getItem(`utech-progress:${course.slug}`) || "[]") as string[];
     result.push(...saved.map(lesson_slug => ({ course_slug: course.slug, lesson_slug })));
   }
   return result;
@@ -42,7 +42,7 @@ function calculateStreak(rows: ProgressRow[]) {
   return streak;
 }
 
-export default function DashboardStats() {
+export default function DashboardStats({ initialCourses }: { initialCourses: Course[] }) {
   const [progress, setProgress] = useState<ProgressRow[]>([]);
   const [quizzes, setQuizzes] = useState<QuizRow[]>([]);
   const [authenticated, setAuthenticated] = useState(false);
@@ -67,31 +67,39 @@ export default function DashboardStats() {
         }
       } catch {}
       if (active) {
-        setProgress(readLocalProgress());
+        setProgress(readLocalProgress(initialCourses));
         setLoading(false);
       }
     }
     load();
     return () => { active = false; };
-  }, []);
+  }, [initialCourses]);
 
   const completedKeys = useMemo(() => new Set(progress.map(item => `${item.course_slug}/${item.lesson_slug}`)), [progress]);
-  const completed = progress.length;
-  const totalLessons = courses.reduce((sum, course) => sum + course.lessons.length, 0);
+  const completed = completedKeys.size;
+  const totalLessons = initialCourses.reduce((sum, course) => sum + course.lessons.length, 0);
   const overallProgress = totalLessons ? Math.round((completed / totalLessons) * 100) : 0;
   const streak = authenticated ? calculateStreak(progress) : 0;
   const averageQuiz = quizzes.length ? Math.round(quizzes.reduce((sum, quiz) => sum + quiz.score, 0) / quizzes.length) : 0;
+
   const nextLesson = useMemo(() => {
-    for (const course of courses) {
+    for (const course of initialCourses) {
       const lesson = course.lessons.find(item => !completedKeys.has(`${course.slug}/${item.slug}`));
       if (lesson) return { course, lesson };
     }
     return null;
-  }, [completedKeys]);
-  const recent = useMemo(() => [...progress].filter(item => item.completed_at).sort((a,b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime()).slice(0, 4), [progress]);
+  }, [completedKeys, initialCourses]);
+
+  const recent = useMemo(
+    () => [...progress]
+      .filter(item => item.completed_at)
+      .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime())
+      .slice(0, 4),
+    [progress]
+  );
 
   const stats = [
-    ["Courses", String(courses.length), BookOpen],
+    ["Courses", String(initialCourses.length), BookOpen],
     ["Completed", String(completed), CheckCircle2],
     ["Learning hours", String(Math.round(completed * 0.5)), Clock3],
     ["Day streak", String(streak), Flame],
@@ -133,7 +141,7 @@ export default function DashboardStats() {
           <h2 className="mt-2 text-2xl font-black text-[#0b1f3a]">Your latest completions</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {recent.map(item => {
-              const course = courses.find(c => c.slug === item.course_slug);
+              const course = initialCourses.find(c => c.slug === item.course_slug);
               const lesson = course?.lessons.find(l => l.slug === item.lesson_slug);
               return <Link key={`${item.course_slug}/${item.lesson_slug}`} href={`/learn/${item.course_slug}/${item.lesson_slug}`} className="rounded-xl border border-slate-100 bg-slate-50 p-4 hover:border-blue-100 hover:bg-blue-50/40"><p className="text-xs font-bold text-[#155eef]">{course?.title}</p><p className="mt-1 font-extrabold text-[#0b1f3a]">{lesson?.title ?? item.lesson_slug}</p><p className="mt-1 text-xs text-slate-400">{item.completed_at ? new Date(item.completed_at).toLocaleDateString() : "Completed"}</p></Link>;
             })}
@@ -144,11 +152,11 @@ export default function DashboardStats() {
       <section>
         <div className="mb-4 flex items-end justify-between gap-4"><div><p className="text-sm font-extrabold uppercase tracking-widest text-slate-400">Your courses</p><h2 className="mt-1 text-2xl font-black text-[#0b1f3a]">Learning paths</h2></div><Link href="/courses" className="hidden text-sm font-extrabold text-[#155eef] sm:block">View all courses</Link></div>
         <div className="grid gap-4 md:grid-cols-2">
-          {courses.map(course => {
+          {initialCourses.map(course => {
             const done = course.lessons.filter(lesson => completedKeys.has(`${course.slug}/${lesson.slug}`)).length;
-            const percent = Math.round((done / course.lessons.length) * 100);
+            const percent = course.lessons.length ? Math.round((done / course.lessons.length) * 100) : 0;
             const firstIncomplete = course.lessons.find(lesson => !completedKeys.has(`${course.slug}/${lesson.slug}`)) ?? course.lessons[0];
-            return <article key={course.slug} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-extrabold uppercase tracking-widest text-[#155eef]">{course.level}</p><h3 className="mt-2 text-xl font-black text-[#0b1f3a]">{course.title}</h3></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">{done}/{course.lessons.length}</span></div><p className="mt-3 text-sm leading-6 text-slate-500">{course.description}</p><div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-[#155eef]" style={{ width: `${percent}%` }} /></div><div className="mt-4 flex items-center justify-between gap-3"><span className="text-xs font-bold text-slate-400">{percent}% complete</span><Link href={`/learn/${course.slug}/${firstIncomplete.slug}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[#155eef]">{done === course.lessons.length ? "Review" : "Continue"} <ArrowRight size={15}/></Link></div></article>;
+            return <article key={course.slug} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-extrabold uppercase tracking-widest text-[#155eef]">{course.level}</p><h3 className="mt-2 text-xl font-black text-[#0b1f3a]">{course.title}</h3></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">{done}/{course.lessons.length}</span></div><p className="mt-3 text-sm leading-6 text-slate-500">{course.description}</p><div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-[#155eef]" style={{ width: `${percent}%` }} /></div><div className="mt-4 flex items-center justify-between gap-3"><span className="text-xs font-bold text-slate-400">{percent}% complete</span>{firstIncomplete ? <Link href={`/learn/${course.slug}/${firstIncomplete.slug}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[#155eef]">{done === course.lessons.length ? "Review" : "Continue"} <ArrowRight size={15}/></Link> : null}</div></article>;
           })}
         </div>
       </section>

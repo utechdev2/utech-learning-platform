@@ -75,9 +75,9 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId, 
       const output = results
         .map((result, index) => {
           const label =
-            labId === "python-function-lab"
+            labSlug === "python-function-lab"
               ? `Test ${index + 1} (${inputs[index].trim()})`
-              : labId === "cpp-coding-lab"
+              : labSlug === "cpp-coding-lab"
                 ? index === 0
                   ? "Test 1 (five valid scores)"
                   : "Test 2 (invalid score followed by valid scores)"
@@ -144,7 +144,7 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId, 
               {runtimeReady ? "Runtime ready" : "Loading runtime..."}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300"><ShieldCheck size={12} /> Browser sandbox</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300"><Clock3 size={12} /> 45s limit</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300"><Clock3 size={12} /> {labSlug === "cpp-coding-lab" ? "Fast assessment" : "45s limit"}</span>
             <button onClick={resetCode} disabled={!runtimeReady || checking} className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300 hover:bg-white/10 disabled:opacity-50"><RotateCcw size={12} /> Reset</button>
           </div>
         </div>

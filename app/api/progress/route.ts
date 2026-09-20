@@ -6,15 +6,16 @@ export async function GET(request: Request) {
   const { data: claims } = await supabase.auth.getClaims();
 
   if (!claims?.claims?.sub) {
-    return NextResponse.json({ authenticated: false, progress: [] });
+    return NextResponse.json({ authenticated: false, progress: [], labAttempts: [] });
   }
 
+  const userId = claims.claims.sub;
   const course = new URL(request.url).searchParams.get("course");
 
   let query = supabase
     .from("lesson_progress")
     .select("course_slug, lesson_slug, completed_at")
-    .eq("user_id", claims.claims.sub)
+    .eq("user_id", userId)
     .order("completed_at", { ascending: true });
 
   if (course) query = query.eq("course_slug", course);
@@ -25,7 +26,79 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ authenticated: true, progress: data ?? [] });
+  const { data: attempts, error: attemptsError } = await supabase
+    .from("lab_attempts")
+    .select("lab_id, status, score, attempts, completed_at, updated_at")
+    .eq("user_id", userId)
+    .eq("status", "passed")
+    .order("updated_at", { ascending: false });
+
+  if (attemptsError) {
+    return NextResponse.json({ error: attemptsError.message }, { status: 500 });
+  }
+
+  const labIds = [...new Set((attempts ?? []).map((attempt) => attempt.lab_id))];
+  let labAttempts: Array<{
+    lab_id: string;
+    lab_slug: string;
+    lab_title: string;
+    course_slug: string;
+    status: string;
+    score: number;
+    attempts: number;
+    completed_at?: string | null;
+    updated_at?: string | null;
+  }> = [];
+
+  if (labIds.length) {
+    const { data: labs, error: labsError } = await supabase
+      .from("labs")
+      .select("id, slug, title, course_id")
+      .in("id", labIds);
+
+    if (labsError) {
+      return NextResponse.json({ error: labsError.message }, { status: 500 });
+    }
+
+    const courseIds = [...new Set((labs ?? []).map((lab) => lab.course_id))];
+    const { data: courses, error: coursesError } = await supabase
+      .from("courses")
+      .select("id, slug")
+      .in("id", courseIds);
+
+    if (coursesError) {
+      return NextResponse.json({ error: coursesError.message }, { status: 500 });
+    }
+
+    const labById = new Map((labs ?? []).map((lab) => [lab.id, lab]));
+    const courseById = new Map((courses ?? []).map((item) => [item.id, item]));
+
+    labAttempts = (attempts ?? [])
+      .map((attempt) => {
+        const lab = labById.get(attempt.lab_id);
+        const courseRecord = lab ? courseById.get(lab.course_id) : undefined;
+        if (!lab || !courseRecord) return null;
+        return {
+          lab_id: attempt.lab_id,
+          lab_slug: lab.slug,
+          lab_title: lab.title,
+          course_slug: courseRecord.slug,
+          status: attempt.status,
+          score: attempt.score,
+          attempts: attempt.attempts,
+          completed_at: attempt.completed_at,
+          updated_at: attempt.updated_at,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => Boolean(item))
+      .filter((item) => !course || item.course_slug === course);
+  }
+
+  return NextResponse.json({
+    authenticated: true,
+    progress: data ?? [],
+    labAttempts,
+  });
 }
 
 export async function POST(request: Request) {

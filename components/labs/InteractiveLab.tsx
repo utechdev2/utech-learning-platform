@@ -102,7 +102,8 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
 
   function resetCode() {
     runnerRef.current?.stop?.();
-    runnerRef.current?.setProgram?.("", runtime, starterCode);
+    const syntax = runtime === "clangpp" ? "cpp" : runtime;
+    runnerRef.current?.setProgram?.(syntax, runtime, starterCode);
     setAssessment(null);
     setAssessmentOutput("");
     setError("");

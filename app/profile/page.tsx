@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { UserCircle } from "lucide-react";
 import StudentNav from "@/components/layout/StudentNav";
+import ProfileForm from "@/components/profile/ProfileForm";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ProfilePage() {
@@ -31,6 +32,7 @@ export default async function ProfilePage() {
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-50 text-[#155eef]"><UserCircle size={42}/></div>
             <div><p className="text-2xl font-black text-[#0b1f3a]">{fullName || "UTECH Student"}</p><p className="mt-1 text-slate-500">{email}</p></div>
           </div>
+          <ProfileForm initialName={fullName} />
           <div className="mt-8 border-t border-slate-100 pt-6">
             <p className="text-sm font-bold text-slate-500">Account status</p>
             <p className="mt-2 font-extrabold text-emerald-600">Authenticated student</p>

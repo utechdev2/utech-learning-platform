@@ -44,7 +44,7 @@ export default async function CoursePage({params}:{params:Promise<{slug:string}>
             <div className="flex items-start justify-between gap-3"><div><h3 className="font-black text-[#0b1f3a]">{lab.title}</h3><p className="mt-1 text-xs font-bold text-slate-400">{lab.difficulty} · {lab.estimatedMinutes} min</p></div>{lab.accessTier === "premium" ? <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-extrabold text-violet-700"><LockKeyhole size={11}/> Premium</span> : <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-extrabold text-emerald-700">Free</span>}</div>
             <p className="mt-3 text-sm leading-6 text-slate-500">{lab.summary}</p>
             <div className="mt-4">{lab.status === "coming_soon" ? <span className="inline-flex items-center gap-1.5 text-sm font-bold text-amber-700"><Sparkles size={15}/> Coming soon</span> : <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[#155eef]"><FlaskConical size={15}/> Guided lab ready</span>}</div>
-          </article>)}
+          </Link>)}
         </div>
       </section>}
     </section>

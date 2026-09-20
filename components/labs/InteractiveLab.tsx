@@ -29,7 +29,7 @@ export default function InteractiveLab({ runtime, starterCode, labTitle }: Props
       <div className="flex min-h-[520px] items-center justify-center rounded-2xl border border-slate-800 bg-[#07172b] p-8 text-center text-slate-300">
         <div>
           <div className="text-sm font-black uppercase tracking-[0.18em] text-blue-300">UTECH Lab</div>
-          <p className="mt-3 text-lg font-bold text-white">Loading {\${labTitle}}...</p>
+          <p className="mt-3 text-lg font-bold text-white">Loading {labTitle}...</p>
           <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
             The practical runtime is starting inside your browser. No code is sent to UTECH for execution.
           </p>
@@ -43,7 +43,7 @@ export default function InteractiveLab({ runtime, starterCode, labTitle }: Props
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
         <div>
           <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-blue-300">Interactive lab</p>
-          <p className="mt-1 text-sm font-bold text-white">{\${labTitle}}</p>
+          <p className="mt-1 text-sm font-bold text-white">{labTitle}</p>
         </div>
         <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-[11px] font-bold text-emerald-300">Runs in browser</span>
       </div>

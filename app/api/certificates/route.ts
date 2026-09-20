@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getCourse } from "@/data/courses";
+import { getCourseFromDb } from "@/lib/courses";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -9,11 +9,11 @@ export async function POST(request: Request) {
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = (await request.json()) as { courseSlug?: string };
-  if (!body.courseSlug || !getCourse(body.courseSlug)) {
+  if (!body.courseSlug) {
     return NextResponse.json({ error: "Valid courseSlug is required." }, { status: 400 });
   }
 
-  const course = getCourse(body.courseSlug)!;
+  const course = await getCourseFromDb(body.courseSlug);\n  if (!course || course.lessons.length === 0) {\n    return NextResponse.json({ error: "Valid published course is required." }, { status: 400 });\n  }
   const { count, error: progressError } = await supabase
     .from("lesson_progress")
     .select("id", { count: "exact", head: true })

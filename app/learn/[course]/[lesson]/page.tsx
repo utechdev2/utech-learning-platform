@@ -3,6 +3,7 @@ import { ArrowLeft, Menu } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getCourse, getLesson } from "@/data/courses";
 import LessonProgress from "@/components/lesson/LessonProgress";
+import Quiz from "@/components/lesson/Quiz";
 
 export default async function LessonPage({params}:{params:Promise<{course:string;lesson:string}>}) {
   const {course:courseSlug, lesson:lessonSlug}=await params;
@@ -36,7 +37,7 @@ export default async function LessonPage({params}:{params:Promise<{course:string
           <section className="mt-8 rounded-2xl border border-slate-200 p-6">
             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Checkpoint quiz</p>
             <h2 className="mt-2 text-xl font-black text-[#0b1f3a]">{lesson.quiz.question}</h2>
-            <div className="mt-4 grid gap-2">{lesson.quiz.options.map((option,i)=><div key={option} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600">{String.fromCharCode(65+i)}. {option}</div>)}</div>
+            <Quiz question={lesson.quiz.question} options={lesson.quiz.options} answer={lesson.quiz.answer}/>
           </section>
           <LessonProgress course={course.slug} lesson={lesson.slug} nextHref={nextHref}/>
         </article>

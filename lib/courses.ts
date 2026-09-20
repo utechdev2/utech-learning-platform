@@ -73,17 +73,24 @@ export async function getCourseFromDb(slug: string): Promise<Course | undefined>
 export async function getLabs(courseSlug?: string): Promise<Lab[]> {
   try {
     const supabase = await createClient();
-    let query = supabase
+    const { data, error } = await supabase
       .from("labs")
       .select("id,course_id,lesson_slug,slug,title,summary,difficulty,estimated_minutes,access_tier,status,instructions,starter_repo_url,course:course_id(slug)")
       .in("status", ["available", "coming_soon"]);
-    if (courseSlug) {
-      query = query.eq("course.slug", courseSlug);
-    }
-    const { data, error } = await query;
+
     if (!error && data) {
       return (data as Array<Record<string, unknown>>).map(row => {
-        const course = row.course as { slug?: string } | null;
+        const courseRelation = row.course;
+        const courseSlugFromRow =
+          Array.isArray(courseRelation)
+            ? String((courseRelation[0] as Record<string, unknown> | undefined)?.slug ?? "")
+            : String((courseRelation as Record<string, unknown> | null)?.slug ?? "");
+
+        const accessTier: Lab["accessTier"] =
+          row.access_tier === "premium" ? "premium" : "free";
+        const status: Lab["status"] =
+          row.status === "available" ? "available" : "coming_soon";
+
         return {
           id: String(row.id),
           courseId: String(row.course_id),
@@ -93,12 +100,14 @@ export async function getLabs(courseSlug?: string): Promise<Lab[]> {
           summary: String(row.summary),
           difficulty: String(row.difficulty),
           estimatedMinutes: Number(row.estimated_minutes),
-          accessTier: row.access_tier === "premium" ? "premium" : "free",
-          status: row.status === "available" ? "available" : "coming_soon",
+          accessTier,
+          status,
           instructions: String(row.instructions ?? ""),
           starterRepoUrl: row.starter_repo_url ? String(row.starter_repo_url) : null,
+          courseSlugFromRow,
         };
-      }).filter(lab => !courseSlug || course?.slug === courseSlug);
+      }).filter(lab => !courseSlug || lab.courseSlugFromRow === courseSlug)
+        .map(({ courseSlugFromRow: _courseSlugFromRow, ...lab }) => lab);
     }
   } catch {}
   return [];

@@ -15,7 +15,10 @@ function CodeBlock({ language, code }: { language?: string; code: string }) {
 }
 
 function renderBlocks(content: string) {
-  const lines = content.replace(/\r\n/g, "\n").split("\n");
+  const lines = content.replace(/\r
+/g, "
+").split("
+");
   const blocks: React.ReactNode[] = [];
   let paragraph: string[] = [];
   let list: string[] = [];
@@ -46,7 +49,8 @@ function renderBlocks(content: string) {
   };
 
   const flushCode = () => {
-    blocks.push(<CodeBlock key={blocks.length} language={codeLanguage} code={code.join("\n")} />);
+    blocks.push(<CodeBlock key={blocks.length} language={codeLanguage} code={code.join("
+")} />);
     code = [];
     codeLanguage = "";
   };

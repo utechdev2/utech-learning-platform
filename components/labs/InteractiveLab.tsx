@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { createElement, useEffect, useMemo, useState } from "react";
 
 type Runtime = "python" | "clangpp" | "sqlite";
 
@@ -48,9 +48,12 @@ export default function InteractiveLab({ runtime, starterCode, labTitle }: Props
         <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-[11px] font-bold text-emerald-300">Runs in browser</span>
       </div>
       <div className="bg-white p-2">
-        <runno-run runtime={element.runtime} editor controls className={element.className}>
-          {starterCode}
-        </runno-run>
+        {createElement("runno-run", {
+          runtime: element.runtime,
+          editor: true,
+          controls: true,
+          className: element.className,
+        }, starterCode)}
       </div>
     </div>
   );

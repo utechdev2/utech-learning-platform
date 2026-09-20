@@ -14,7 +14,7 @@ export default function CourseProgress({ courseSlug, lessonCount, firstLesson }:
       .then(data => {
         if (data.authenticated && Array.isArray(data.progress)) {
           setAuthenticated(true);
-          setCompleted(data.progress.length);
+          setCompleted(new Set(data.progress.map((item: { lesson_slug: string }) => item.lesson_slug)).size);
         }
       })
       .catch(() => {});

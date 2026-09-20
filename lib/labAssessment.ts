@@ -97,7 +97,7 @@ export function assessLab(
       },
       {
         label: "Has a complete input-validation flow",
-        passed: /cin\s*>>\s*score/.test(source) && /scores\\.push_back\(\s*score\s*\)/.test(source) && /calculateAverage\s*\(\s*scores\s*\)/.test(source),
+        passed: /cin\s*>>\s*score/.test(source) && /scores\.push_back\(\s*score\s*\)/.test(source) && /calculateAverage\s*\(\s*scores\s*\)/.test(source),
         detail: "The entered scores should flow into the vector and then into the average calculation.",
       },
     ];

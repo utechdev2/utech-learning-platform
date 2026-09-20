@@ -7,7 +7,7 @@ type CourseRow = {
 };
 type LessonRow = {
   id: string; slug: string; title: string; summary: string; points: string[]; quiz_question: string;
-  quiz_options: string[]; quiz_answer: number; position: number; published: boolean;
+  quiz_options: string[]; quiz_answer: number; position: number; published: boolean; content?: string;
 };
 
 function mapCourse(row: CourseRow): Course {

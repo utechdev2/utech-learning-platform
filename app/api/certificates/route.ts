@@ -13,7 +13,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Valid courseSlug is required." }, { status: 400 });
   }
 
-  const course = await getCourseFromDb(body.courseSlug);\n  if (!course || course.lessons.length === 0) {\n    return NextResponse.json({ error: "Valid published course is required." }, { status: 400 });\n  }
+  const course = await getCourseFromDb(body.courseSlug);
+  if (!course || course.lessons.length === 0) {
+    return NextResponse.json({ error: "Valid published course is required." }, { status: 400 });
+  }
+
   const { count, error: progressError } = await supabase
     .from("lesson_progress")
     .select("id", { count: "exact", head: true })

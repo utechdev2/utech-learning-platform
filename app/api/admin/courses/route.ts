@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 export async function GET() {
   const { supabase, userId, role } = await staff();
   if (!userId || !["admin","instructor"].includes(role ?? "")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  const { data, error } = await supabase.from("courses").select("id,slug,title,description,level,duration,published,lessons(id,slug,title,summary,points,quiz_question,quiz_options,quiz_answer,position,published)").order("slug");
+  const { data, error } = await supabase.from("courses").select("id,slug,title,description,level,duration,published,lessons(id,slug,title,summary,content,points,quiz_question,quiz_options,quiz_answer,position,published)").order("slug");
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ courses: data });
 }

@@ -3,6 +3,7 @@ import { ArrowLeft, Menu } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getCourse, getLesson } from "@/data/courses";
 import LessonProgress from "@/components/lesson/LessonProgress";
+import CourseLessonList from "@/components/course/CourseLessonList";
 import Quiz from "@/components/lesson/Quiz";
 
 export default async function LessonPage({params}:{params:Promise<{course:string;lesson:string}>}) {
@@ -24,7 +25,7 @@ export default async function LessonPage({params}:{params:Promise<{course:string
       <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[280px_1fr]">
         <aside className="rounded-2xl border border-slate-200 bg-white p-4 lg:sticky lg:top-6 lg:h-fit">
           <p className="px-3 pb-3 text-xs font-extrabold uppercase tracking-widest text-slate-400">Course lessons</p>
-          <div className="space-y-1">{course.lessons.map((item,i)=><Link key={item.slug} href={`/learn/${course.slug}/${item.slug}`} className={`block rounded-lg px-3 py-3 text-sm font-semibold ${i===index?"bg-blue-50 text-[#155eef]":"text-slate-600 hover:bg-slate-50"}`}><span className="mr-2 text-xs text-slate-400">{String(i+1).padStart(2,"0")}</span>{item.title}</Link>)}</div>
+          <CourseLessonList courseSlug={course.slug} lessons={course.lessons} currentSlug={lesson.slug} />
         </aside>
         <article className="min-h-[650px] rounded-2xl border border-slate-200 bg-white p-7 md:p-12">
           <span className="text-sm font-extrabold uppercase tracking-[0.18em] text-[#155eef]">Lesson {index+1}</span>

@@ -48,6 +48,13 @@ export async function POST(request: Request) {
 
   const selectedAnswer = body.selectedAnswer;
 
+  if (typeof selectedAnswer !== "number" || !Number.isInteger(selectedAnswer)) {
+    return NextResponse.json(
+      { error: "A valid selected answer is required." },
+      { status: 400 }
+    );
+  }
+
   if (!lesson || selectedAnswer >= lesson.quiz.options.length) {
     return NextResponse.json(
       { error: "Valid lesson and answer are required." },

@@ -1,0 +1,20 @@
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+type Course = { id:string; slug:string; title:string; description:string; level:string; duration:string; published:boolean; lessons:{id:string;slug:string;title:string;position:number;published:boolean}[] };
+
+export default function AdminCoursesPage() {
+  const [courses,setCourses]=useState<Course[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState("");
+  const [form,setForm]=useState({slug:"",title:"",description:"",level:"Beginner",duration:"",published:true});
+  const load=()=>{setLoading(true);fetch("/api/admin/courses").then(async r=>{const d=await r.json();if(!r.ok) throw new Error(d.error);setCourses(d.courses);}).catch(e=>setError(e.message)).finally(()=>setLoading(false));};
+  useEffect(load,[]);
+  async function createCourse(e:React.FormEvent){e.preventDefault();setError("");const r=await fetch("/api/admin/courses",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});const d=await r.json();if(!r.ok){setError(d.error);return;}setForm({slug:"",title:"",description:"",level:"Beginner",duration:"",published:true});load();}
+  return <main className="min-h-screen bg-[#f8fafc]"><header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl justify-between px-6 py-5"><Link href="/admin" className="font-black text-[#0b1f3a]">← Admin control center</Link><span className="text-sm font-bold text-slate-500">Course Management</span></div></header>
+  <section className="mx-auto max-w-7xl px-6 py-10"><h1 className="text-4xl font-black text-[#0b1f3a]">Courses & lessons</h1><p className="mt-2 text-slate-500">Create courses and manage the live learning catalogue from Supabase.</p>
+  {error&&<p className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p>}
+  <div className="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]"><form onSubmit={createCourse} className="rounded-2xl border border-slate-200 bg-white p-6"><h2 className="text-xl font-black text-[#0b1f3a]">New course</h2>{[["slug","Slug"],["title","Title"],["description","Description"],["level","Level"],["duration","Duration"]].map(([key,label])=><label key={key} className="mt-4 block text-sm font-bold text-slate-600">{label}<input required value={(form as any)[key]} onChange={e=>setForm({...form,[key]:e.target.value})} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500"/></label>)}<button className="mt-5 w-full rounded-xl bg-[#0b1f3a] px-4 py-3 font-bold text-white">Create course</button></form>
+  <div className="space-y-4">{loading?<p>Loading courses…</p>:courses.map(c=><div key={c.id} className="rounded-2xl border border-slate-200 bg-white p-6"><div className="flex items-start justify-between gap-4"><div><h2 className="text-xl font-black text-[#0b1f3a]">{c.title}</h2><p className="mt-1 text-sm text-slate-500">{c.slug} · {c.lessons.length} lessons</p></div><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-[#155eef]">{c.published?"Published":"Draft"}</span></div><p className="mt-3 text-sm text-slate-600">{c.description}</p><div className="mt-5 flex flex-wrap gap-3">{c.lessons.sort((a,b)=>a.position-b.position).map(l=><span key={l.id} className="rounded-lg bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">{l.position}. {l.title}</span>)}</div></div>)}</div></div></section></main>;
+}

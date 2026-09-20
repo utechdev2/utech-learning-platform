@@ -39,22 +39,22 @@ export function assessLab(
     const checks: LabCheck[] = [
       {
         label: "Defines a reusable greet(name) function",
-        passed: /def\\s+greet\\s*\\(\\s*name\\s*\\)\\s*:/.test(source),
+        passed: /def\s+greet\s*\(\s*name\s*\)\s*:/.test(source),
         detail: "The greeting logic should live inside greet(name).",
       },
       {
         label: "Reads the learner's name with input()",
-        passed: /\\binput\\s*\\(/.test(source),
+        passed: /\binput\s*\(/.test(source),
         detail: "The program should ask the user for a name.",
       },
       {
         label: "Runs successfully for Oscar",
-        passed: Boolean(first && first.resultType === "complete" && /Hello,\\s*Oscar/i.test(firstOutput)),
+        passed: Boolean(first && first.resultType === "complete" && /Hello,\s*Oscar/i.test(firstOutput)),
         detail: first?.stderr ? first.stderr.trim() : "Expected a personalized greeting for Oscar.",
       },
       {
         label: "Runs successfully for Ama",
-        passed: Boolean(second && second.resultType === "complete" && /Hello,\\s*Ama/i.test(secondOutput)),
+        passed: Boolean(second && second.resultType === "complete" && /Hello,\s*Ama/i.test(secondOutput)),
         detail: second?.stderr ? second.stderr.trim() : "Expected a personalized greeting for Ama.",
       },
     ];
@@ -65,22 +65,23 @@ export function assessLab(
 
   if (labId === "cpp-coding-lab") {
     const run = successful[0];
-    const averageMatch = output.match(/average\\s*:\\s*(-?\\d+(?:\\.\\d+)?)/i);
+    const averageMatch = output.match(/average\s*:\s*(-?\d+(?:\.\d+)?)/i);
     const average = averageMatch ? Number(averageMatch[1]) : NaN;
+
     const checks: LabCheck[] = [
       {
         label: "Uses a vector for the scores",
-        passed: /\\bvector\\s*<\\s*int\\s*>/.test(source) && /scores/.test(source),
+        passed: /\bvector\s*<\s*int\s*>/.test(source) && /scores/.test(source),
         detail: "Keep the class scores in a vector.",
       },
       {
         label: "Uses a loop to calculate the total",
-        passed: /\\bfor\\s*\\(/.test(source) && /total\\s*\\+=/.test(source),
+        passed: /\bfor\s*\(/.test(source) && /total\s*\+=/.test(source),
         detail: "Calculate the total from the vector instead of hard-coding it.",
       },
       {
         label: "Calculates a decimal average",
-        passed: /average/.test(source) && /(static_cast\\s*<\\s*double|double\\s+average)/.test(source),
+        passed: /average/.test(source) && /(static_cast\s*<\s*double|double\s+average)/.test(source),
         detail: "The average should be calculated as a decimal value.",
       },
       {
@@ -98,17 +99,17 @@ export function assessLab(
     const checks: LabCheck[] = [
       {
         label: "Creates the students table",
-        passed: /create\\s+table\\s+(?:if\\s+not\\s+exists\\s+)?students/i.test(source),
+        passed: /create\s+table\s+(?:if\s+not\s+exists\s+)?students/i.test(source),
         detail: "Create a table named students.",
       },
       {
         label: "Inserts student records",
-        passed: /insert\\s+into\\s+students/i.test(source),
+        passed: /insert\s+into\s+students/i.test(source),
         detail: "Insert at least three student records.",
       },
       {
         label: "Sorts the result by age",
-        passed: /order\\s+by\\s+age/i.test(source),
+        passed: /order\s+by\s+age/i.test(source),
         detail: "The final query should sort students by age.",
       },
       {

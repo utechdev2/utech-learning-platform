@@ -48,6 +48,25 @@ export async function POST(request: Request) {
   }
 
   if (body.completed) {
+    const { data: mastery, error: masteryError } = await supabase
+      .from("quiz_attempts")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("course_slug", body.courseSlug)
+      .eq("lesson_slug", body.lessonSlug)
+      .eq("score", 100)
+      .limit(1)
+      .maybeSingle();
+
+    if (masteryError) return NextResponse.json({ error: masteryError.message }, { status: 500 });
+
+    if (!mastery) {
+      return NextResponse.json(
+        { error: "Pass the lesson quiz before marking this lesson complete." },
+        { status: 403 }
+      );
+    }
+
     const { error } = await supabase.from("lesson_progress").upsert(
       {
         user_id: userId,

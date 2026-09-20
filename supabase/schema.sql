@@ -79,3 +79,64 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();
+
+
+-- Live course management
+create table if not exists public.courses (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  title text not null,
+  description text not null,
+  level text not null,
+  duration text not null,
+  published boolean not null default true,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.lessons (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses(id) on delete cascade,
+  slug text not null,
+  title text not null,
+  summary text not null,
+  points jsonb not null default '[]'::jsonb,
+  quiz_question text not null,
+  quiz_options jsonb not null default '[]'::jsonb,
+  quiz_answer integer not null check (quiz_answer >= 0),
+  position integer not null,
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(course_id, slug),
+  unique(course_id, position)
+);
+
+create index if not exists lessons_course_position_idx on public.lessons(course_id, position);
+
+create or replace function private.is_staff()
+returns boolean language sql security definer set search_path = public, private
+as $$ select exists (select 1 from public.profiles where id = auth.uid() and role in ('admin','instructor')); $$;
+revoke execute on function private.is_staff() from public, anon;
+grant execute on function private.is_staff() to authenticated;
+
+alter table public.courses enable row level security;
+alter table public.lessons enable row level security;
+
+create policy "Public can read published courses" on public.courses for select to anon, authenticated
+using (published = true or (select private.is_staff()));
+create policy "Staff can insert courses" on public.courses for insert to authenticated with check ((select private.is_staff()));
+create policy "Staff can update courses" on public.courses for update to authenticated using ((select private.is_staff())) with check ((select private.is_staff()));
+create policy "Staff can delete courses" on public.courses for delete to authenticated using ((select private.is_staff()));
+
+create policy "Public can read published lessons" on public.lessons for select to anon, authenticated
+using (published = true or ((select private.is_staff()) and exists (select 1 from public.courses c where c.id = course_id)));
+create policy "Staff can insert lessons" on public.lessons for insert to authenticated with check ((select private.is_staff()));
+create policy "Staff can update lessons" on public.lessons for update to authenticated using ((select private.is_staff())) with check ((select private.is_staff()));
+create policy "Staff can delete lessons" on public.lessons for delete to authenticated using ((select private.is_staff()));
+
+grant select on public.courses to anon, authenticated;
+grant select, insert, update, delete on public.courses to authenticated;
+grant select on public.lessons to anon, authenticated;
+grant select, insert, update, delete on public.lessons to authenticated;

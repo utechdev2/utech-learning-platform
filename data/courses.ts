@@ -5,6 +5,7 @@ export type Lesson = {
   content?: string;
   points: string[];
   quiz: { question: string; options: string[]; answer: number };
+  accessTier?: "free" | "premium";
 };
 
 export type Course = {
@@ -14,6 +15,8 @@ export type Course = {
   level: string;
   duration: string;
   lessons: Lesson[];
+  status?: "live" | "coming_soon";
+  accessTier?: "free" | "premium";
 };
 
 export const courses: Course[] = [
@@ -26,7 +29,7 @@ export const courses: Course[] = [
       {slug:"input-and-output",title:"Input and output",summary:"Programs become interactive when they receive input and communicate results through output.",points:["input() returns text by default.","Use int() or float() when numeric input is required.","print() displays values and messages."],quiz:{question:"What type does input() return by default?",options:["int","float","str","bool"],answer:2}},
       {slug:"conditions",title:"Conditions",summary:"Conditional logic lets a program choose different actions based on whether expressions are true or false.",points:["Use if for a condition and else for the alternative.","elif handles additional conditions.","Comparison operators produce Boolean results."],quiz:{question:"Which keyword handles an additional condition?",options:["loop","elif","case","check"],answer:1}},
       {slug:"loops",title:"Loops",summary:"Loops repeat instructions so programs can process collections or repeat work efficiently.",points:["for loops are useful for iterating over sequences.","while loops continue while a condition remains true.","A loop should have a clear stopping condition."],quiz:{question:"Which loop is commonly used to iterate through a list?",options:["for","if","try","def"],answer:0}},
-      {slug:"functions",title:"Functions",summary:"Functions package reusable logic into named blocks that can accept inputs and return results.",points:["Define functions with def.","Parameters allow functions to receive values.","return sends a result back to the caller."],quiz:{question:"Which keyword defines a Python function?",options:["func","define","def","return"],answer:2}},
+      {slug:"functions",title:"Functions",summary:"Functions package reusable logic into named blocks that can accept inputs and return results.",points:["Define functions with def.","Parameters allow functions to receive values.","return sends a result back to the caller."],quiz:{question:"Which keyword defines a Python function?",options:["func","define","def","return"],answer:2}}
     ]
   },
   {
@@ -38,7 +41,7 @@ export const courses: Course[] = [
       {slug:"network-topologies",title:"Network topologies",summary:"Topology describes how network devices and links are arranged physically or logically.",points:["Star networks connect devices through a central point.","Bus topologies use a shared backbone.","Topology choices affect resilience, cost and troubleshooting."],quiz:{question:"Which topology commonly uses a central switch?",options:["Star","Bus","Ring only","Point-to-point only"],answer:0}},
       {slug:"osi-model",title:"OSI model",summary:"The OSI model provides seven conceptual layers for understanding network communication.",points:["Layers range from Physical to Application.","Each layer has a defined communication role.","The model helps isolate and troubleshoot network problems."],quiz:{question:"How many layers are in the OSI model?",options:["4","5","7","9"],answer:2}},
       {slug:"ip-addressing",title:"IP addressing",summary:"IP addresses identify network interfaces so packets can be delivered between networks.",points:["IPv4 uses 32-bit addresses.","Subnets divide address space into logical networks.","A default gateway provides a path to other networks."],quiz:{question:"What does an IP address identify?",options:["A network interface/address endpoint","A file type","A programming language","A monitor"],answer:0}},
-      {slug:"routing-basics",title:"Routing basics",summary:"Routing determines where packets should go to reach a destination network.",points:["Routers use routing tables to make forwarding decisions.","Routes can be connected, static or learned dynamically.","The longest-prefix match is important in IPv4 routing decisions."],quiz:{question:"What device normally forwards packets between networks?",options:["Switch only","Router","Keyboard","Printer"],answer:1}},
+      {slug:"routing-basics",title:"Routing basics",summary:"Routing determines where packets should go to reach a destination network.",points:["Routers use routing tables to make forwarding decisions.","Routes can be connected, static or learned dynamically.","The longest-prefix match is important in IPv4 routing decisions."],quiz:{question:"What device normally forwards packets between networks?",options:["Switch only","Router","Keyboard","Printer"],answer:1}}
     ]
   },
   {
@@ -50,7 +53,7 @@ export const courses: Course[] = [
       {slug:"authentication",title:"Authentication",summary:"Authentication verifies who or what is requesting access to a system.",points:["Passwords are one authentication factor.","Multi-factor authentication combines different factor types.","Authentication comes before authorization decisions."],quiz:{question:"What does authentication verify?",options:["Identity","File size","Screen resolution","Network speed"],answer:0}},
       {slug:"access-control",title:"Access control",summary:"Access control determines what authenticated users or systems are allowed to do.",points:["Authorization defines permitted actions.","Least privilege limits access to what is necessary.","Roles can simplify permission management."],quiz:{question:"What principle limits access to only what is needed?",options:["Least privilege","Open access","Maximum trust","Broadcast"],answer:0}},
       {slug:"network-security",title:"Network security",summary:"Network security uses controls and monitoring to reduce unauthorized access and malicious traffic.",points:["Firewalls enforce traffic rules.","Network segmentation can limit lateral movement.","Monitoring helps identify suspicious activity."],quiz:{question:"What is a firewall primarily used for?",options:["Filtering network traffic","Writing code","Editing images","Managing printers"],answer:0}},
-      {slug:"defensive-thinking",title:"Defensive thinking",summary:"Defensive security starts by identifying assets, threats, weaknesses and practical controls.",points:["Think in terms of attack paths and exposed assets.","Layered controls reduce dependence on one defense.","Security is an ongoing process, not a one-time setup."],quiz:{question:"Why use layered security controls?",options:["To create multiple defensive barriers","To remove all monitoring","To avoid updates","To disable backups"],answer:0}},
+      {slug:"defensive-thinking",title:"Defensive thinking",summary:"Defensive security starts by identifying assets, threats, weaknesses and practical controls.",points:["Think in terms of attack paths and exposed assets.","Layered controls reduce dependence on one defense.","Security is an ongoing process, not a one-time setup."],quiz:{question:"Why use layered security controls?",options:["To create multiple defensive barriers","To remove all monitoring","To avoid updates","To disable backups"],answer:0}}
     ]
   },
   {
@@ -62,9 +65,17 @@ export const courses: Course[] = [
       {slug:"permissions",title:"Permissions",summary:"Linux permissions control who can read, write or execute files and directories.",points:["Permissions are grouped for owner, group and others.","r, w and x represent read, write and execute.","chmod changes permission modes."],quiz:{question:"What does x commonly represent in Linux permissions?",options:["Execute","Export","Encrypt","Exit"],answer:0}},
       {slug:"processes",title:"Processes",summary:"A process is a running program instance that consumes system resources.",points:["ps can display running processes.","Processes have identifiers called PIDs.","Signals can request actions such as termination."],quiz:{question:"What does PID stand for?",options:["Process Identifier","Package Install Directory","Private Internet Domain","Program Input Device"],answer:0}},
       {slug:"packages",title:"Packages",summary:"Package managers install, update and remove software while handling dependencies.",points:["Package managers keep software installation organized.","Updates can include security fixes.","Repositories provide packages for supported distributions."],quiz:{question:"What is a package manager used for?",options:["Managing software packages","Drawing networks","Editing photos","Writing HTML only"],answer:0}},
-      {slug:"shell-productivity",title:"Shell productivity",summary:"Shell tools become powerful when commands are combined with pipes, redirection and useful shortcuts.",points:["Pipes send one command's output to another command.","Redirection can write output to files.","History and tab completion speed up repetitive work."],quiz:{question:"What symbol commonly pipes output into another command?",options:["|","#","@","%"],answer:0}},
+      {slug:"shell-productivity",title:"Shell productivity",summary:"Shell tools become powerful when commands are combined with pipes, redirection and useful shortcuts.",points:["Pipes send one command's output to another command.","Redirection can write output to files.","History and tab completion speed up repetitive work."],quiz:{question:"What symbol commonly pipes output into another command?",options:["|","#","@","%"],answer:0}}
     ]
-  }
+  },
+  { slug:"cpp-programming", title:"C++ Programming", description:"Build strong programming foundations with C++, from syntax and control flow to object-oriented programming and practical problem solving.", level:"Beginner → Intermediate", duration:"10 hours", lessons:[], status:"coming_soon", accessTier:"free" },
+  { slug:"java-programming", title:"Java Programming", description:"Learn Java fundamentals, object-oriented programming, collections, exceptions and application design.", level:"Beginner → Intermediate", duration:"10 hours", lessons:[], status:"coming_soon", accessTier:"free" },
+  { slug:"system-administration", title:"System Administration", description:"Learn how to install, configure, monitor, secure and maintain real computer systems across Linux and Windows environments.", level:"Intermediate", duration:"12 hours", lessons:[], status:"coming_soon", accessTier:"premium" },
+  { slug:"web-application-development", title:"Web Application Development", description:"Move from frontend fundamentals into full-stack web application architecture, APIs, databases and deployment.", level:"Intermediate", duration:"14 hours", lessons:[], status:"coming_soon", accessTier:"premium" },
+  { slug:"sql-databases", title:"SQL & Databases", description:"Learn relational database design, SQL queries, joins, constraints, transactions and practical database administration.", level:"Beginner → Intermediate", duration:"9 hours", lessons:[], status:"coming_soon", accessTier:"free" },
+  { slug:"calculus-for-computing", title:"Calculus for Computing", description:"A computing-focused calculus path covering functions, limits, derivatives, integrals and applications.", level:"Beginner", duration:"8 hours", lessons:[], status:"coming_soon", accessTier:"free" },
+  { slug:"ai-foundations", title:"AI Foundations", description:"Understand the foundations behind modern AI, machine learning workflows, data, models and responsible AI development.", level:"Beginner → Intermediate", duration:"9 hours", lessons:[], status:"coming_soon", accessTier:"premium" },
+  { slug:"cloud-and-devops", title:"Cloud & DevOps", description:"Learn cloud concepts, Linux-based deployment, containers, CI/CD and practical operations workflows.", level:"Intermediate", duration:"12 hours", lessons:[], status:"coming_soon", accessTier:"premium" }
 ];
 
 export function getCourse(slug: string) { return courses.find(course => course.slug === slug); }

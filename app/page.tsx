@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { ArrowRight, BookOpen, Code2, Network, ShieldCheck, Terminal, Sparkles } from "lucide-react";
 
 const courses = [
-  { title: "Python Programming", description: "Build your programming foundation from the ground up.", icon: Code2, level: "Beginner" },
-  { title: "Computer Networking", description: "Understand networks, protocols, topologies and real infrastructure.", icon: Network, level: "Beginner → Intermediate" },
-  { title: "Cybersecurity", description: "Learn practical security concepts and defensive thinking.", icon: ShieldCheck, level: "Beginner" },
-  { title: "Linux Essentials", description: "Master the command line, filesystems, permissions and core tools.", icon: Terminal, level: "Beginner" },
+  { title: "Python Programming", slug: "python-programming", description: "Build your programming foundation from the ground up.", icon: Code2, level: "Beginner" },
+  { title: "Computer Networking", slug: "computer-networking", description: "Understand networks, protocols, topologies and real infrastructure.", icon: Network, level: "Beginner → Intermediate" },
+  { title: "Cybersecurity", slug: "cybersecurity-foundations", description: "Learn practical security concepts and defensive thinking.", icon: ShieldCheck, level: "Beginner" },
+  { title: "Linux Essentials", slug: "linux-essentials", description: "Master the command line, filesystems, permissions and core tools.", icon: Terminal, level: "Beginner" },
 ];
 
 export default function Home() {
@@ -12,17 +13,17 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <nav className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0b1f3a] text-sm font-black text-white">U</div>
             <div>
               <p className="text-base font-extrabold tracking-tight text-[#0b1f3a]">UTECH</p>
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Learning Hub</p>
             </div>
-          </div>
+          </Link>
           <div className="hidden items-center gap-8 text-sm font-semibold text-slate-600 md:flex">
-            <a href="#courses" className="hover:text-[#155eef]">Courses</a>
+            <Link href="/courses" className="hover:text-[#155eef]">Courses</Link>
             <a href="#about" className="hover:text-[#155eef]">How it works</a>
-            <button className="rounded-lg bg-[#0b1f3a] px-5 py-2.5 text-white hover:bg-[#122d52]">Sign in</button>
+            <Link href="/auth/sign-in" className="rounded-lg bg-[#0b1f3a] px-5 py-2.5 text-white hover:bg-[#122d52]">Sign in</Link>
           </div>
         </div>
       </nav>
@@ -42,9 +43,9 @@ export default function Home() {
               A modern learning platform for people who want to understand technology, build real skills, and turn knowledge into practical projects.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <a href="#courses" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-bold text-[#0b1f3a] shadow-lg hover:bg-slate-100">
+              <Link href="/courses" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-bold text-[#0b1f3a] shadow-lg hover:bg-slate-100">
                 Explore courses <ArrowRight size={18} />
-              </a>
+              </Link>
               <a href="#about" className="inline-flex items-center justify-center rounded-xl border border-white/20 px-6 py-3.5 font-bold text-white hover:bg-white/10">
                 See how it works
               </a>
@@ -82,10 +83,10 @@ export default function Home() {
             <h2 className="mt-2 text-3xl font-black tracking-tight text-[#0b1f3a] md:text-4xl">Build skills that matter.</h2>
             <p className="mt-3 max-w-2xl text-slate-500">Structured courses designed around practical technology skills.</p>
           </div>
-          <button className="inline-flex items-center gap-2 font-bold text-[#155eef]">View all courses <ArrowRight size={17} /></button>
+          <Link href="/courses" className="inline-flex items-center gap-2 font-bold text-[#155eef]">View all courses <ArrowRight size={17} /></Link>
         </div>
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {courses.map(({ title, description, icon: Icon, level }) => (
+          {courses.map(({ title, slug, description, icon: Icon, level }) => (
             <article key={title} className="group rounded-2xl border border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-900/5">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#155eef]">
                 <Icon size={23} />
@@ -93,7 +94,7 @@ export default function Home() {
               <span className="mt-6 inline-block text-xs font-bold uppercase tracking-wider text-slate-400">{level}</span>
               <h3 className="mt-2 text-xl font-extrabold text-[#0b1f3a]">{title}</h3>
               <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
-              <button className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#155eef]">View course <ArrowRight size={15} /></button>
+              <Link href={`/courses/${slug}`} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#155eef]">View course <ArrowRight size={15} /></Link>
             </article>
           ))}
         </div>

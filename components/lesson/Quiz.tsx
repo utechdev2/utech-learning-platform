@@ -24,7 +24,7 @@ export default function Quiz({
       const data = await response.json();
       if (response.ok) {
         setSubmitted(true);
-        if (data.score === 1) onPassed?.();
+        if (data.score === 100) onPassed?.();
       }
     } catch {} finally {
       setSaving(false);

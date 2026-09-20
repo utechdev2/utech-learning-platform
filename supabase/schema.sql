@@ -140,3 +140,6 @@ grant select on public.courses to anon, authenticated;
 grant select, insert, update, delete on public.courses to authenticated;
 grant select on public.lessons to anon, authenticated;
 grant select, insert, update, delete on public.lessons to authenticated;
+
+-- Rich lesson authoring content
+alter table public.lessons add column if not exists content text not null default '';

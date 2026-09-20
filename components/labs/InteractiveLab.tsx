@@ -58,9 +58,13 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
       const inputs =
         labId === "python-function-lab"
           ? ["Oscar\n", "Ama\n"]
-          : labId === "cpp-coding-lab"
-            ? ["72\n85\n91\n64\n88\n", "101\n72\n85\n91\n64\n88\n"]
-            : [""];
+          : [""];
+
+      if (labId === "cpp-coding-lab") {
+        setAssessmentOutput("Running fast C++ source checks...\n\nTip: use Run above to compile the program and test it with live input.");
+        setAssessment(assessLab(labId, code, []));
+        return;
+      }
 
       const results: HeadlessResult[] = [];
       for (let index = 0; index < inputs.length; index += 1) {
@@ -163,7 +167,11 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-300">Automated assessment</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">Hidden tests run separately from the interactive terminal and receive their own input.</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+            {labId === "cpp-coding-lab"
+              ? "Fast source checks keep C++ assessment responsive. Use Run above for the real compile-and-input test."
+              : "Hidden tests run separately from the interactive terminal and receive their own input."}
+          </p>
           </div>
           <button onClick={assessSolution} disabled={!runtimeReady || checking} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-black text-white hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50">
             <CheckCircle2 size={15} /> {checking ? "Checking..." : "Check my solution"}

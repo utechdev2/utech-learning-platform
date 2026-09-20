@@ -64,37 +64,47 @@ export function assessLab(
   }
 
   if (labId === "cpp-coding-lab") {
-    const run = successful[0];
-    const averageMatch = output.match(/average\s*:\s*(-?\d+(?:\.\d+)?)/i);
-    const average = averageMatch ? Number(averageMatch[1]) : NaN;
+    const first = successful[0];
+    const validationRun = successful[1];
+    const firstOutput = normalize(first?.stdout ?? first?.tty ?? "");
+    const validationOutput = normalize(validationRun?.stdout ?? validationRun?.tty ?? "");
 
     const checks: LabCheck[] = [
       {
-        label: "Uses a vector for the scores",
-        passed: /\bvector\s*<\s*int\s*>/.test(source) && /scores/.test(source),
-        detail: "Keep the class scores in a vector.",
+        label: "Reads five scores from user input",
+        passed: /\bcin\s*>>/.test(source) && /for\s*\([^)]*<\s*5/.test(source),
+        detail: "The program must collect five scores instead of hard-coding them.",
       },
       {
-        label: "Uses a loop to calculate the total",
-        passed: /\bfor\s*\(/.test(source) && /total\s*\+=/.test(source),
-        detail: "Calculate the total from the vector instead of hard-coding it.",
+        label: "Validates scores from 0 to 100",
+        passed: /score\s*<\s*0\s*\|\|\s*score\s*>\s*100/.test(source) && /while\s*\(/.test(source),
+        detail: "An invalid score must be rejected and the user must be asked again.",
       },
       {
-        label: "Calculates a decimal average",
-        passed: /average/.test(source) && /(static_cast\s*<\s*double|double\s+average)/.test(source),
-        detail: "The average should be calculated as a decimal value.",
+        label: "Uses custom functions",
+        passed: /double\s+calculateAverage\s*\(/.test(source) && /char\s+getLetterGrade\s*\(/.test(source),
+        detail: "Move the average and grade logic into reusable functions.",
       },
       {
-        label: "Program compiles and produces the expected average",
-        passed: Boolean(run?.resultType === "complete" && run.exitCode === 0 && Math.abs(average - 80) < 0.001),
-        detail: run?.stderr ? run.stderr.trim() : "Expected Average: 80 for the starter score set.",
+        label: "Calculates the average from the vector",
+        passed: /vector\s*<\s*int\s*>/.test(source) && /total\s*\+=\s*score/.test(source) && /calculateAverage\s*\(\s*scores\s*\)/.test(source),
+        detail: "The calculation should use the values collected in the vector.",
+      },
+      {
+        label: "Prints the numerical average and letter grade",
+        passed: /Average\s*:/.test(firstOutput) && /Grade\s*:\s*[ABCDF]/i.test(firstOutput),
+        detail: "The final output should show both the average and a letter grade.",
+      },
+      {
+        label: "Handles valid and invalid input correctly",
+        passed: Boolean(first?.resultType === "complete" && first.exitCode === 0 && /Average\s*:\s*80(?:\.00)?/i.test(firstOutput) && /Grade\s*:\s*B/i.test(firstOutput) && validationRun?.resultType === "complete" && /Invalid score/i.test(validationOutput) && /Average\s*:\s*80(?:\.00)?/i.test(validationOutput)),
+        detail: validationRun?.stderr ? validationRun.stderr.trim() : "The grader tests a normal five-score run and an out-of-range score that must be rejected.",
       },
     ];
 
     const passedCount = checks.filter((check) => check.passed).length;
     return { score: Math.round((passedCount / checks.length) * 100), passed: passedCount === checks.length, checks };
   }
-
   if (labId === "sql-database-lab") {
     const checks: LabCheck[] = [
       {

@@ -70,6 +70,11 @@ export async function getCourseFromDb(slug: string): Promise<Course | undefined>
   return fallbackCourses.find(course => course.slug === slug);
 }
 
+export async function getLab(courseSlug: string, labSlug: string): Promise<Lab | undefined> {
+  const labs = await getLabs(courseSlug);
+  return labs.find(lab => lab.slug === labSlug);
+}
+
 export async function getLabs(courseSlug?: string): Promise<Lab[]> {
   try {
     const supabase = await createClient();

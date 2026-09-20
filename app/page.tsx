@@ -12,7 +12,7 @@ const courses = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
-      <nav className="relative border-b border-slate-200 bg-white">
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0b1f3a] text-sm font-black text-white">U</div>
@@ -30,7 +30,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="relative overflow-hidden bg-[#0b1f3a]">
+      <section className="relative overflow-hidden bg-[#0b1f3a] pt-20">
         <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
         <div className="absolute -bottom-40 left-1/3 h-96 w-96 rounded-full bg-sky-400/10 blur-3xl" />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-24 lg:grid-cols-[1.1fr_.9fr] lg:items-center lg:py-32">

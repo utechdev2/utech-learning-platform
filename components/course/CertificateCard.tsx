@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Award, Copy, ExternalLink } from "lucide-react";
 
 export default function CertificateCard({ courseSlug }: { courseSlug: string }) {
   const [certificateId, setCertificateId] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(false);\n  const [completed, setCompleted] = useState(false);\n  const [checking, setChecking] = useState(true);\n\n  useEffect(() => {\n    fetch("/api/progress?course=" + encodeURIComponent(courseSlug), { cache: "no-store" })\n      .then(res => res.json())\n      .then(data => {\n        if (data.authenticated && Array.isArray(data.progress)) {\n          setCompleted(new Set(data.progress.map((item: { lesson_slug: string }) => item.lesson_slug)).size > 0);\n        }\n      })\n      .catch(() => {})\n      .finally(() => setChecking(false));\n  }, [courseSlug]);
 
   async function issue() {
     setBusy(true); setError("");
@@ -25,7 +25,7 @@ export default function CertificateCard({ courseSlug }: { courseSlug: string }) 
           <p className="text-xs font-extrabold uppercase tracking-widest text-amber-700">Course certificate</p>
           <h3 className="mt-1 text-lg font-black text-[#0b1f3a]">Completed the course?</h3>
           <p className="mt-1 text-sm leading-6 text-slate-600">Generate a unique certificate ID after all lessons are complete.</p>
-          {!certificateId ? <button onClick={issue} disabled={busy} className="mt-4 rounded-xl bg-[#0b1f3a] px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "Checking completion…" : "Generate certificate"}</button> : <div className="mt-4 flex flex-col gap-3"><div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3"><code className="flex-1 text-sm font-bold text-[#0b1f3a]">{certificateId}</code><button onClick={() => navigator.clipboard?.writeText(certificateId)} aria-label="Copy certificate ID"><Copy size={16}/></button></div><a href={"/verify/" + encodeURIComponent(certificateId)} className="inline-flex items-center gap-2 text-sm font-extrabold text-[#155eef]">Verify certificate <ExternalLink size={15}/></a></div>}
+          {!certificateId ? <button onClick={issue} disabled={busy || checking || !completed} className="mt-4 rounded-xl bg-[#0b1f3a] px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{checking ? "Checking progress…" : busy ? "Checking completion…" : completed ? "Generate certificate" : "Complete the course first"}</button> : <div className="mt-4 flex flex-col gap-3"><div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3"><code className="flex-1 text-sm font-bold text-[#0b1f3a]">{certificateId}</code><button onClick={() => navigator.clipboard?.writeText(certificateId)} aria-label="Copy certificate ID"><Copy size={16}/></button></div><a href={"/verify/" + encodeURIComponent(certificateId)} className="inline-flex items-center gap-2 text-sm font-extrabold text-[#155eef]">Verify certificate <ExternalLink size={15}/></a></div>}
           {error && <p className="mt-3 text-sm font-semibold text-red-600">{error}</p>}
         </div>
       </div>

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   }
 
   const course = await getCourseFromDb(body.courseSlug);
-  if (!course || course.lessons.length === 0) {
+  if (!course || course.lessons.length === 0 || !course.id) {
     return NextResponse.json({ error: "Valid published course is required." }, { status: 400 });
   }
 

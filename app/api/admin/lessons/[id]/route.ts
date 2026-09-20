@@ -17,14 +17,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const body = await request.json();
   const updates: Record<string, unknown> = {};
   if (body.slug !== undefined) updates.slug = String(body.slug).trim().toLowerCase();
-  for (const key of ["title","summary","quiz_question"]) if (body[key] !== undefined) updates[key] = String(body[key]).trim();
+  for (const key of ["title","summary","content","quiz_question"]) if (body[key] !== undefined) updates[key] = String(body[key]).trim();
   if (body.points !== undefined) updates.points = Array.isArray(body.points) ? body.points : [];
   if (body.quiz_options !== undefined) updates.quiz_options = Array.isArray(body.quiz_options) ? body.quiz_options : [];
   if (body.quiz_answer !== undefined) updates.quiz_answer = Number(body.quiz_answer);
   if (body.position !== undefined) updates.position = Number(body.position);
   if (body.published !== undefined) updates.published = Boolean(body.published);
   updates.updated_at = new Date().toISOString();
-  const { data, error } = await supabase.from("lessons").update(updates).eq("id", id).select("id,slug,title,summary,points,quiz_question,quiz_options,quiz_answer,position,published").single();
+  const { data, error } = await supabase.from("lessons").update(updates).eq("id", id).select("id,slug,title,summary,content,points,quiz_question,quiz_options,quiz_answer,position,published").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ lesson: data });
 }

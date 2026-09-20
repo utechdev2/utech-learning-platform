@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Code2, Network, ShieldCheck, Terminal, Sparkles } from "lucide-react";\nimport MobileHomeNav from "@/components/layout/MobileHomeNav";
+import { ArrowRight, BookOpen, Code2, Network, ShieldCheck, Terminal, Sparkles } from "lucide-react";
+import MobileHomeNav from "@/components/layout/MobileHomeNav";
 
 const courses = [
   { title: "Python Programming", slug: "python-programming", description: "Build your programming foundation from the ground up.", icon: Code2, level: "Beginner" },
@@ -25,6 +26,7 @@ export default function Home() {
             <a href="#about" className="hover:text-[#155eef]">How it works</a>
             <Link href="/auth/sign-in" className="rounded-lg bg-[#0b1f3a] px-5 py-2.5 text-white hover:bg-[#122d52]">Sign in</Link>
           </div>
+          <MobileHomeNav />
         </div>
       </nav>
 

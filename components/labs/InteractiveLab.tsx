@@ -14,6 +14,7 @@ type RunnoElement = HTMLElement & {
 };
 
 const RunnoRun = "runno-run" as ElementType;
+const ASSESSMENT_TIMEOUT_MS = 45000;
 
 export default function InteractiveLab({ runtime, starterCode, labTitle, labId }: Props) {
   const runnerRef = useRef<RunnoElement | null>(null);
@@ -39,7 +40,10 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
     return Promise.race([
       headlessRunCode(runtime, code, stdin) as Promise<HeadlessResult>,
       new Promise<HeadlessResult>((_, reject) =>
-        window.setTimeout(() => reject(new Error("Execution took too long. Check for an infinite loop or missing input.")), 15000),
+        window.setTimeout(
+          () => reject(new Error("Automated execution took too long. Check your program for an infinite loop or input that never finishes.")),
+          ASSESSMENT_TIMEOUT_MS,
+        ),
       ),
     ]);
   }
@@ -48,7 +52,7 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
     setChecking(true);
     setError("");
     setAssessment(null);
-    setAssessmentOutput("Running hidden checks...");
+    setAssessmentOutput("Preparing hidden checks...");
     try {
       const code = await currentCode();
       const inputs =
@@ -57,18 +61,26 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
           : labId === "cpp-coding-lab"
             ? ["72\n85\n91\n64\n88\n", "101\n72\n85\n91\n64\n88\n"]
             : [""];
-      const results: HeadlessResult[] = [];
-      for (const input of inputs) results.push(await execute(code, input));
 
-      const output = results.map((result, index) => {
-        const label =
-          labId === "python-function-lab"
-            ? `Test ${index + 1} (${inputs[index].trim()})`
-            : labId === "cpp-coding-lab"
-              ? index === 0 ? "Test 1 (five valid scores)" : "Test 2 (invalid score followed by valid scores)"
-              : "Execution";
-        return `[${label}]\n${[result.stdout, result.stderr].filter(Boolean).join("\n") || "(no output)"}`;
-      }).join("\n\n");
+      const results: HeadlessResult[] = [];
+      for (let index = 0; index < inputs.length; index += 1) {
+        setAssessmentOutput(`Running hidden check ${index + 1} of ${inputs.length}...`);
+        results.push(await execute(code, inputs[index]));
+      }
+
+      const output = results
+        .map((result, index) => {
+          const label =
+            labId === "python-function-lab"
+              ? `Test ${index + 1} (${inputs[index].trim()})`
+              : labId === "cpp-coding-lab"
+                ? index === 0
+                  ? "Test 1 (five valid scores)"
+                  : "Test 2 (invalid score followed by valid scores)"
+                : "Execution";
+          return `[${label}]\n${[result.stdout, result.stderr].filter(Boolean).join("\n") || "(no output)"}`;
+        })
+        .join("\n\n");
 
       setAssessmentOutput(output);
       setAssessment(assessLab(labId, code, results));
@@ -128,7 +140,7 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
               {runtimeReady ? "Runtime ready" : "Loading runtime..."}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300"><ShieldCheck size={12} /> Browser sandbox</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300"><Clock3 size={12} /> 15s limit</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300"><Clock3 size={12} /> 45s limit</span>
             <button onClick={resetCode} disabled={!runtimeReady || checking} className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300 hover:bg-white/10 disabled:opacity-50"><RotateCcw size={12} /> Reset</button>
           </div>
         </div>

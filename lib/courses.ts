@@ -14,7 +14,7 @@ function mapCourse(row: CourseRow): Course {
   const lessons = (row.lessons ?? [])
     .sort((a,b) => a.position - b.position)
     .map(lesson => ({
-      slug: lesson.slug, title: lesson.title, summary: lesson.summary,
+      slug: lesson.slug, title: lesson.title, summary: lesson.summary, content: lesson.content ?? "",
       points: lesson.points ?? [], quiz: {
         question: lesson.quiz_question, options: lesson.quiz_options ?? [], answer: lesson.quiz_answer,
       },
@@ -25,7 +25,7 @@ function mapCourse(row: CourseRow): Course {
 export async function getCourses(): Promise<Course[]> {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.from("courses").select("id,slug,title,description,level,duration,published,lessons(id,slug,title,summary,points,quiz_question,quiz_options,quiz_answer,position,published)").eq("published", true).order("slug");
+    const { data, error } = await supabase.from("courses").select("id,slug,title,description,level,duration,published,lessons(id,slug,title,summary,content,points,quiz_question,quiz_options,quiz_answer,position,published)").eq("published", true).order("slug");
     if (!error && data?.length) return (data as unknown as CourseRow[]).map(mapCourse);
   } catch {}
   return fallbackCourses;

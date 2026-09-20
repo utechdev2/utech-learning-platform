@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { getCourseFromDb, getLabs } from "@/lib/courses";
 import CourseLessonList from "@/components/course/CourseLessonList";
 import LessonCheckpoint from "@/components/lesson/LessonCheckpoint";
-import LessonContent from "@/components/lesson/LessonContent";\nimport LessonSlides from "@/components/lesson/LessonSlides";
+import LessonContent from "@/components/lesson/LessonContent";
+import LessonSlides from "@/components/lesson/LessonSlides";
 
 export default async function LessonPage({params}:{params:Promise<{course:string;lesson:string}>}) {
   const {course:courseSlug, lesson:lessonSlug}=await params;

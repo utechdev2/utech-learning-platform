@@ -69,7 +69,7 @@ export default async function LabPage({ params }: { params: Promise<{ course: st
             <div className="mt-6 max-w-2xl rounded-xl bg-violet-50 p-4 text-sm font-semibold leading-6 text-violet-900">Premium execution is protected server-side. We will connect this to subscriptions before selling access.</div>
           </section>
         ) : starter ? (
-          <InteractiveLab runtime={starter.runtime} starterCode={starter.code} labTitle={lab.title} labId={lab.id} />
+          <InteractiveLab runtime={starter.runtime} starterCode={starter.code} labTitle={lab.title} labId={lab.id} labSlug={lab.slug} />
         ) : (
           <section className="rounded-2xl border border-slate-200 bg-white p-8"><p className="text-slate-600">{lab.instructions}</p></section>
         )}

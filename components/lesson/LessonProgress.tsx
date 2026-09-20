@@ -31,17 +31,20 @@ export default function LessonProgress({ course, lesson, nextHref, canComplete =
   async function toggle() {
     if (!complete && !canComplete) return;
     const nextComplete = !complete;
-    setComplete(nextComplete);
-    const saved = JSON.parse(localStorage.getItem(key) || "[]") as string[];
-    const next = nextComplete ? Array.from(new Set([...saved, lesson])) : saved.filter(item => item !== lesson);
-    localStorage.setItem(key, JSON.stringify(next));
 
     try {
-      await fetch("/api/progress", {
+      const response = await fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseSlug: course, lessonSlug: lesson, completed: nextComplete }),
       });
+
+      if (!response.ok) return;
+
+      setComplete(nextComplete);
+      const saved = JSON.parse(localStorage.getItem(key) || "[]") as string[];
+      const next = nextComplete ? Array.from(new Set([...saved, lesson])) : saved.filter(item => item !== lesson);
+      localStorage.setItem(key, JSON.stringify(next));
     } catch {}
   }
 

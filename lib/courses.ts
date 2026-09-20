@@ -38,6 +38,7 @@ function mapCourse(row: CourseRow): Course {
       },
     }));
   return {
+    id: row.id,
     slug: row.slug, title: row.title, description: row.description, level: row.level, duration: row.duration, lessons,
     status: row.status ?? "live", accessTier: row.access_tier ?? "free",
   };

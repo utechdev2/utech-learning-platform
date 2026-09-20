@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, CheckCircle2, Clock3, Flame } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, Clock3, Flame, PlayCircle } from "lucide-react";
 import { courses } from "@/data/courses";
 
 type ProgressRow = { course_slug: string; lesson_slug: string };
@@ -18,6 +18,7 @@ function readLocalProgress() {
 
 export default function DashboardStats() {
   const [progress, setProgress] = useState<ProgressRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -27,19 +28,35 @@ export default function DashboardStats() {
         const data = await response.json();
         if (active && data.authenticated && Array.isArray(data.progress)) {
           setProgress(data.progress);
+          setLoading(false);
           return;
         }
       } catch {}
-      if (active) setProgress(readLocalProgress());
+      if (active) {
+        setProgress(readLocalProgress());
+        setLoading(false);
+      }
     }
     load();
     return () => { active = false; };
   }, []);
 
+  const completedKeys = useMemo(
+    () => new Set(progress.map(item => `${item.course_slug}/${item.lesson_slug}`)),
+    [progress]
+  );
+
   const completed = progress.length;
-  const linuxTotal = courses.find(c => c.slug === "linux-essentials")?.lessons.length ?? 1;
-  const linuxCompleted = progress.filter(item => item.course_slug === "linux-essentials").length;
-  const linuxProgress = Math.round((linuxCompleted / linuxTotal) * 100);
+  const totalLessons = courses.reduce((sum, course) => sum + course.lessons.length, 0);
+  const overallProgress = totalLessons ? Math.round((completed / totalLessons) * 100) : 0;
+
+  const nextLesson = useMemo(() => {
+    for (const course of courses) {
+      const lesson = course.lessons.find(item => !completedKeys.has(`${course.slug}/${item.slug}`));
+      if (lesson) return { course, lesson };
+    }
+    return null;
+  }, [completedKeys]);
 
   const stats = [
     ["Courses", String(courses.length), BookOpen],
@@ -52,36 +69,106 @@ export default function DashboardStats() {
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map(([label, value, Icon]) => (
-          <div key={label} className="rounded-2xl border border-slate-200 bg-white p-6">
+          <div key={label} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <Icon className="text-[#155eef]" size={21} />
             <p className="mt-5 text-sm font-semibold text-slate-500">{label}</p>
             <p className="mt-1 text-3xl font-black text-[#0b1f3a]">{value}</p>
           </div>
         ))}
       </div>
+
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-7">
-          <div className="flex items-end justify-between">
+        <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+          <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-extrabold uppercase tracking-widest text-slate-400">Continue</p>
-              <h2 className="mt-2 text-2xl font-black text-[#0b1f3a]">Linux Essentials</h2>
+              <p className="text-sm font-extrabold uppercase tracking-widest text-slate-400">Overall progress</p>
+              <h2 className="mt-2 text-2xl font-black text-[#0b1f3a]">Keep the momentum.</h2>
             </div>
-            <span className="font-black text-[#155eef]">{linuxProgress}%</span>
+            <span className="font-black text-[#155eef]">{overallProgress}%</span>
           </div>
-          <div className="mt-6 h-3 rounded-full bg-slate-100">
-            <div className="h-full rounded-full bg-[#155eef] transition-all" style={{ width: `${linuxProgress}%` }} />
+          <div className="mt-6 h-3 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full bg-[#155eef] transition-all" style={{ width: `${overallProgress}%` }} />
           </div>
-          <p className="mt-4 text-sm text-slate-500">Your authenticated progress is synced to UTECH when your Supabase account is connected.</p>
-          <Link href="/learn/linux-essentials/the-linux-terminal" className="mt-6 inline-flex items-center gap-2 font-bold text-[#155eef]">
-            Continue lesson <ArrowRight size={16} />
-          </Link>
+          <p className="mt-4 text-sm text-slate-500">
+            {loading ? "Loading your learning progress…" : `${completed} of ${totalLessons} lessons completed across the hub.`}
+          </p>
+          {nextLesson ? (
+            <Link
+              href={`/learn/${nextLesson.course.slug}/${nextLesson.lesson.slug}`}
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0b1f3a] px-5 py-3 text-sm font-extrabold text-white transition hover:bg-[#155eef]"
+            >
+              <PlayCircle size={17} />
+              Continue learning
+              <ArrowRight size={16} />
+            </Link>
+          ) : (
+            <Link href="/courses" className="mt-6 inline-flex items-center gap-2 font-bold text-[#155eef]">
+              Browse courses <ArrowRight size={16} />
+            </Link>
+          )}
         </div>
+
         <div className="rounded-2xl bg-[#0b1f3a] p-7 text-white">
-          <p className="text-sm font-bold text-blue-200">Learning habit</p>
-          <h2 className="mt-2 text-2xl font-black">Build the habit.</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-300">Finish a lesson, test yourself, then keep moving. Your progress follows your account across sessions once Supabase is configured.</p>
+          <p className="text-sm font-bold text-blue-200">Your next step</p>
+          <h2 className="mt-2 text-2xl font-black">
+            {nextLesson ? nextLesson.lesson.title : "You completed everything."}
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-slate-300">
+            {nextLesson
+              ? `${nextLesson.course.title} · ${nextLesson.course.level}`
+              : "Explore the course catalogue for your next learning path."}
+          </p>
+          {nextLesson && (
+            <Link href={`/learn/${nextLesson.course.slug}/${nextLesson.lesson.slug}`} className="mt-6 inline-flex items-center gap-2 font-bold text-white">
+              Start lesson <ArrowRight size={16} />
+            </Link>
+          )}
         </div>
       </div>
+
+      <section>
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-extrabold uppercase tracking-widest text-slate-400">Your courses</p>
+            <h2 className="mt-1 text-2xl font-black text-[#0b1f3a]">Learning paths</h2>
+          </div>
+          <Link href="/courses" className="hidden text-sm font-extrabold text-[#155eef] sm:block">View all courses</Link>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {courses.map(course => {
+            const done = course.lessons.filter(lesson =>
+              completedKeys.has(`${course.slug}/${lesson.slug}`)
+            ).length;
+            const percent = Math.round((done / course.lessons.length) * 100);
+            const firstIncomplete = course.lessons.find(lesson =>
+              !completedKeys.has(`${course.slug}/${lesson.slug}`)
+            ) ?? course.lessons[0];
+
+            return (
+              <article key={course.slug} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-[#155eef]">{course.level}</p>
+                    <h3 className="mt-2 text-xl font-black text-[#0b1f3a]">{course.title}</h3>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">{done}/{course.lessons.length}</span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-slate-500">{course.description}</p>
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full rounded-full bg-[#155eef]" style={{ width: `${percent}%` }} />
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <span className="text-xs font-bold text-slate-400">{percent}% complete</span>
+                  <Link href={`/learn/${course.slug}/${firstIncomplete.slug}`} className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[#155eef]">
+                    {done === course.lessons.length ? "Review" : "Continue"} <ArrowRight size={15} />
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

@@ -72,32 +72,32 @@ export function assessLab(
     const checks: LabCheck[] = [
       {
         label: "Reads five scores from user input",
-        passed: /\\bcin\\s*>>/.test(source) && /for\\s*\\([^)]*<\\s*5/.test(source),
+        passed: /\bcin\s*>>/.test(source) && /for\s*\([^)]*<\s*5/.test(source),
         detail: "The program must collect five scores instead of hard-coding them.",
       },
       {
         label: "Validates scores from 0 to 100",
-        passed: /score\\s*<\\s*0\\s*\\|\\|\\s*score\\s*>\\s*100/.test(source) && /while\\s*\\(/.test(source),
+        passed: /score\s*<\s*0\s*\|\|\s*score\s*>\s*100/.test(source) && /while\s*\(/.test(source),
         detail: "An invalid score must be rejected and the user must be asked again.",
       },
       {
         label: "Uses custom functions",
-        passed: /double\\s+calculateAverage\\s*\\(/.test(source) && /char\\s+getLetterGrade\\s*\\(/.test(source),
+        passed: /double\s+calculateAverage\s*\(/.test(source) && /char\s+getLetterGrade\s*\(/.test(source),
         detail: "Move the average and grade logic into reusable functions.",
       },
       {
         label: "Calculates the average from the vector",
-        passed: /vector\\s*<\\s*int\\s*>/.test(source) && /total\\s*\\+=\\s*score/.test(source) && /calculateAverage\\s*\\(\\s*scores\\s*\\)/.test(source),
+        passed: /vector\s*<\s*int\s*>/.test(source) && /total\s*\+=\s*score/.test(source) && /calculateAverage\s*\(\s*scores\s*\)/.test(source),
         detail: "The calculation should use the values collected in the vector.",
       },
       {
         label: "Prints the numerical average and letter grade",
-        passed: /Average\\s*:/.test(source) && /Grade\\s*:/.test(source),
+        passed: /Average\s*:/.test(source) && /Grade\s*:/.test(source),
         detail: "The final output should show both the average and a letter grade.",
       },
       {
         label: "Has a complete input-validation flow",
-        passed: /cin\\s*>>\\s*score/.test(source) && /scores\\.push_back\\(\\s*score\\s*\\)/.test(source) && /calculateAverage\\s*\\(\\s*scores\\s*\\)/.test(source),
+        passed: /cin\s*>>\s*score/.test(source) && /scores\\.push_back\(\s*score\s*\)/.test(source) && /calculateAverage\s*\(\s*scores\s*\)/.test(source),
         detail: "The entered scores should flow into the vector and then into the average calculation.",
       },
     ];

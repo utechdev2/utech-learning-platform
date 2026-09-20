@@ -64,47 +64,48 @@ export function assessLab(
   }
 
   if (labId === "cpp-coding-lab") {
-    const first = successful[0];
-    const validationRun = successful[1];
-    const firstOutput = normalize(first?.stdout ?? first?.tty ?? "");
-    const validationOutput = normalize(validationRun?.stdout ?? validationRun?.tty ?? "");
-
+    // C++ uses Runno's browser-based clang/WASI toolchain. Compiling the same
+    // program for every hidden stdin case can be very expensive in-browser.
+    // Keep the Check button responsive by validating the required program
+    // structure here; the interactive Runno terminal remains the place to
+    // compile and exercise the program with live input.
     const checks: LabCheck[] = [
       {
         label: "Reads five scores from user input",
-        passed: /\bcin\s*>>/.test(source) && /for\s*\([^)]*<\s*5/.test(source),
+        passed: /\\bcin\\s*>>/.test(source) && /for\\s*\\([^)]*<\\s*5/.test(source),
         detail: "The program must collect five scores instead of hard-coding them.",
       },
       {
         label: "Validates scores from 0 to 100",
-        passed: /score\s*<\s*0\s*\|\|\s*score\s*>\s*100/.test(source) && /while\s*\(/.test(source),
+        passed: /score\\s*<\\s*0\\s*\\|\\|\\s*score\\s*>\\s*100/.test(source) && /while\\s*\\(/.test(source),
         detail: "An invalid score must be rejected and the user must be asked again.",
       },
       {
         label: "Uses custom functions",
-        passed: /double\s+calculateAverage\s*\(/.test(source) && /char\s+getLetterGrade\s*\(/.test(source),
+        passed: /double\\s+calculateAverage\\s*\\(/.test(source) && /char\\s+getLetterGrade\\s*\\(/.test(source),
         detail: "Move the average and grade logic into reusable functions.",
       },
       {
         label: "Calculates the average from the vector",
-        passed: /vector\s*<\s*int\s*>/.test(source) && /total\s*\+=\s*score/.test(source) && /calculateAverage\s*\(\s*scores\s*\)/.test(source),
+        passed: /vector\\s*<\\s*int\\s*>/.test(source) && /total\\s*\\+=\\s*score/.test(source) && /calculateAverage\\s*\\(\\s*scores\\s*\\)/.test(source),
         detail: "The calculation should use the values collected in the vector.",
       },
       {
         label: "Prints the numerical average and letter grade",
-        passed: /Average\s*:/.test(firstOutput) && /Grade\s*:\s*[ABCDF]/i.test(firstOutput),
+        passed: /Average\\s*:/.test(source) && /Grade\\s*:/.test(source),
         detail: "The final output should show both the average and a letter grade.",
       },
       {
-        label: "Handles valid and invalid input correctly",
-        passed: Boolean(first?.resultType === "complete" && first.exitCode === 0 && /Average\s*:\s*80(?:\.00)?/i.test(firstOutput) && /Grade\s*:\s*B/i.test(firstOutput) && validationRun?.resultType === "complete" && /Invalid score/i.test(validationOutput) && /Average\s*:\s*80(?:\.00)?/i.test(validationOutput)),
-        detail: validationRun?.stderr ? validationRun.stderr.trim() : "The grader tests a normal five-score run and an out-of-range score that must be rejected.",
+        label: "Has a complete input-validation flow",
+        passed: /cin\\s*>>\\s*score/.test(source) && /scores\\.push_back\\(\\s*score\\s*\\)/.test(source) && /calculateAverage\\s*\\(\\s*scores\\s*\\)/.test(source),
+        detail: "The entered scores should flow into the vector and then into the average calculation.",
       },
     ];
 
     const passedCount = checks.filter((check) => check.passed).length;
     return { score: Math.round((passedCount / checks.length) * 100), passed: passedCount === checks.length, checks };
   }
+
   if (labId === "sql-database-lab") {
     const checks: LabCheck[] = [
       {

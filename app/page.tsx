@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Code2, Network, ShieldCheck, Terminal, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Code2, Network, ShieldCheck, Terminal, Sparkles } from "lucide-react";\nimport MobileHomeNav from "@/components/layout/MobileHomeNav";
 
 const courses = [
   { title: "Python Programming", slug: "python-programming", description: "Build your programming foundation from the ground up.", icon: Code2, level: "Beginner" },
@@ -11,7 +11,7 @@ const courses = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
-      <nav className="border-b border-slate-200 bg-white">
+      <nav className="relative border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0b1f3a] text-sm font-black text-white">U</div>

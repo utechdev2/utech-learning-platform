@@ -78,42 +78,45 @@ export async function getLab(courseSlug: string, labSlug: string): Promise<Lab |
 export async function getLabs(courseSlug?: string): Promise<Lab[]> {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    let courseId: string | undefined;
+
+    if (courseSlug) {
+      const { data: course, error: courseError } = await supabase
+        .from("courses")
+        .select("id")
+        .eq("slug", courseSlug)
+        .eq("published", true)
+        .maybeSingle();
+
+      if (courseError || !course) return [];
+      courseId = String(course.id);
+    }
+
+    let query = supabase
       .from("labs")
-      .select("id,course_id,lesson_slug,slug,title,summary,difficulty,estimated_minutes,access_tier,status,instructions,starter_repo_url,course:course_id(slug)")
+      .select("id,course_id,lesson_slug,slug,title,summary,difficulty,estimated_minutes,access_tier,status,instructions,starter_repo_url")
       .in("status", ["available", "coming_soon"]);
 
-    if (!error && data) {
-      return (data as Array<Record<string, unknown>>).map(row => {
-        const courseRelation = row.course;
-        const courseSlugFromRow =
-          Array.isArray(courseRelation)
-            ? String((courseRelation[0] as Record<string, unknown> | undefined)?.slug ?? "")
-            : String((courseRelation as Record<string, unknown> | null)?.slug ?? "");
+    if (courseId) query = query.eq("course_id", courseId);
 
-        const accessTier: Lab["accessTier"] =
-          row.access_tier === "premium" ? "premium" : "free";
-        const status: Lab["status"] =
-          row.status === "available" ? "available" : "coming_soon";
+    const { data, error } = await query;
+    if (error || !data) return [];
 
-        return {
-          id: String(row.id),
-          courseId: String(row.course_id),
-          lessonSlug: row.lesson_slug ? String(row.lesson_slug) : null,
-          slug: String(row.slug),
-          title: String(row.title),
-          summary: String(row.summary),
-          difficulty: String(row.difficulty),
-          estimatedMinutes: Number(row.estimated_minutes),
-          accessTier,
-          status,
-          instructions: String(row.instructions ?? ""),
-          starterRepoUrl: row.starter_repo_url ? String(row.starter_repo_url) : null,
-          courseSlugFromRow,
-        };
-      }).filter(lab => !courseSlug || lab.courseSlugFromRow === courseSlug)
-        .map(({ courseSlugFromRow: _courseSlugFromRow, ...lab }) => lab);
-    }
-  } catch {}
-  return [];
+    return (data as Array<Record<string, unknown>>).map(row => ({
+      id: String(row.id),
+      courseId: String(row.course_id),
+      lessonSlug: row.lesson_slug ? String(row.lesson_slug) : null,
+      slug: String(row.slug),
+      title: String(row.title),
+      summary: String(row.summary),
+      difficulty: String(row.difficulty),
+      estimatedMinutes: Number(row.estimated_minutes),
+      accessTier: row.access_tier === "premium" ? "premium" : "free",
+      status: row.status === "available" ? "available" : "coming_soon",
+      instructions: String(row.instructions ?? ""),
+      starterRepoUrl: row.starter_repo_url ? String(row.starter_repo_url) : null,
+    }));
+  } catch {
+    return [];
+  }
 }

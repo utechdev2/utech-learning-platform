@@ -37,7 +37,7 @@ export default async function LessonPage({params}:{params:Promise<{course:string
           <section className="mt-8 rounded-2xl border border-slate-200 p-6">
             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Checkpoint quiz</p>
             <h2 className="mt-2 text-xl font-black text-[#0b1f3a]">{lesson.quiz.question}</h2>
-            <Quiz question={lesson.quiz.question} options={lesson.quiz.options} answer={lesson.quiz.answer}/>
+            <Quiz courseSlug={course.slug} lessonSlug={lesson.slug} question={lesson.quiz.question} options={lesson.quiz.options} answer={lesson.quiz.answer}/>
           </section>
           <LessonProgress course={course.slug} lesson={lesson.slug} nextHref={nextHref}/>
         </article>

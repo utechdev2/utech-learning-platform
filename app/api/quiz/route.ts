@@ -46,14 +46,16 @@ export async function POST(request: Request) {
   const course = await getCourseFromDb(body.courseSlug);
   const lesson = course?.lessons.find((item) => item.slug === body.lessonSlug);
 
-  if (!lesson || body.selectedAnswer >= lesson.quiz.options.length) {
+  const selectedAnswer = body.selectedAnswer;
+
+  if (!lesson || selectedAnswer >= lesson.quiz.options.length) {
     return NextResponse.json(
       { error: "Valid lesson and answer are required." },
       { status: 400 }
     );
   }
 
-  const score = body.selectedAnswer === lesson.quiz.answer ? 100 : 0;
+  const score = selectedAnswer === lesson.quiz.answer ? 100 : 0;
   const { error } = await supabase.from("quiz_attempts").insert({
     user_id: userId,
     course_slug: body.courseSlug,

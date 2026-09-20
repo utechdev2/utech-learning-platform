@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, PlayCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getCourse } from "@/data/courses";
+import CourseProgress from "@/components/course/CourseProgress";
 
 export default async function CoursePage({params}:{params:Promise<{slug:string}>}) {
   const {slug}=await params;
@@ -27,7 +28,7 @@ export default async function CoursePage({params}:{params:Promise<{slug:string}>
           <div className="mt-7 grid gap-3">
             {course.lessons.map((lesson,index)=><Link href={`/learn/${course.slug}/${lesson.slug}`} key={lesson.slug} className="flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4 hover:border-blue-100 hover:bg-blue-50/40"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-black text-[#155eef]">{index+1}</div><div className="flex-1 font-bold text-[#0b1f3a]">{lesson.title}</div><CheckCircle2 size={18} className="text-slate-300"/></Link>)}
           </div>
-          <Link href={`/learn/${course.slug}/${course.lessons[0].slug}`} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#155eef] px-6 py-3.5 font-bold text-white hover:bg-blue-700">Start course <ArrowRight size={18}/></Link>
+          <CourseProgress courseSlug={course.slug} lessonCount={course.lessons.length} firstLesson={course.lessons[0].slug} />
         </div>
       </section>
     </main>

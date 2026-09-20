@@ -5,7 +5,7 @@ import type { CSSProperties, ElementType } from "react";
 import { AlertCircle, CheckCircle2, Clock3, RotateCcw, ShieldCheck } from "lucide-react";
 import { assessLab, type LabAssessment, type LabRuntime } from "@/lib/labAssessment";
 
-type Props = { runtime: LabRuntime; starterCode: string; labTitle: string; labId: string };
+type Props = { runtime: LabRuntime; starterCode: string; labTitle: string; labId: string; labSlug: string };
 type HeadlessResult = { resultType?: string; stdout?: string; stderr?: string; exitCode?: number; tty?: string };
 type RunnoElement = HTMLElement & {
   stop?: () => void;
@@ -16,7 +16,7 @@ type RunnoElement = HTMLElement & {
 const RunnoRun = "runno-run" as ElementType;
 const ASSESSMENT_TIMEOUT_MS = 45000;
 
-export default function InteractiveLab({ runtime, starterCode, labTitle, labId }: Props) {
+export default function InteractiveLab({ runtime, starterCode, labTitle, labId, labSlug }: Props) {
   const runnerRef = useRef<RunnoElement | null>(null);
   const [runtimeReady, setRuntimeReady] = useState(false);
   const [assessment, setAssessment] = useState<LabAssessment | null>(null);
@@ -56,13 +56,13 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
     try {
       const code = await currentCode();
       const inputs =
-        labId === "python-function-lab"
+        labSlug === "python-function-lab"
           ? ["Oscar\n", "Ama\n"]
           : [""];
 
-      if (labId === "cpp-coding-lab") {
+      if (labSlug === "cpp-coding-lab") {
         setAssessmentOutput("Running fast C++ source checks...\n\nTip: use Run above to compile the program and test it with live input.");
-        setAssessment(assessLab(labId, code, []));
+        setAssessment(assessLab(labSlug, code, []));
         return;
       }
 
@@ -87,7 +87,7 @@ export default function InteractiveLab({ runtime, starterCode, labTitle, labId }
         .join("\n\n");
 
       setAssessmentOutput(output);
-      setAssessment(assessLab(labId, code, results));
+      setAssessment(assessLab(labSlug, code, results));
     } catch (err) {
       setError(err instanceof Error ? err.message : "The automated assessment could not be completed.");
       setAssessmentOutput("");

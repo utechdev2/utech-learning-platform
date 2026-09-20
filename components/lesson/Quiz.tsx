@@ -3,24 +3,32 @@
 import { useState } from "react";
 
 export default function Quiz({
-  courseSlug, lessonSlug, question, options, answer,
+  courseSlug, lessonSlug, question, options, answer, onPassed,
 }: {
-  courseSlug: string; lessonSlug: string; question: string; options: string[]; answer: number;
+  courseSlug: string; lessonSlug: string; question: string; options: string[]; answer: number; onPassed?: () => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
   const correct = submitted && selected === answer;
 
   async function submitAnswer() {
-    if (selected === null) return;
-    setSubmitted(true);
+    if (selected === null || saving) return;
+    setSaving(true);
     try {
-      await fetch("/api/quiz", {
+      const response = await fetch("/api/quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseSlug, lessonSlug, selectedAnswer: selected }),
       });
-    } catch {}
+      const data = await response.json();
+      if (response.ok) {
+        setSubmitted(true);
+        if (data.score === 1) onPassed?.();
+      }
+    } catch {} finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -38,8 +46,10 @@ export default function Quiz({
         })}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button disabled={selected === null} onClick={submitAnswer} className="rounded-xl bg-[#0b1f3a] px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">Check answer</button>
-        {submitted && <p className={`text-sm font-bold ${correct ? "text-green-700" : "text-red-700"}`}>{correct ? "Correct — nice work." : "Not quite. Review the key concepts and try again."}</p>}
+        <button disabled={selected === null || saving} onClick={submitAnswer} className="rounded-xl bg-[#0b1f3a] px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">
+          {saving ? "Checking…" : "Check answer"}
+        </button>
+        {submitted && <p className={`text-sm font-bold ${correct ? "text-green-700" : "text-red-700"}`}>{correct ? "Correct — mastery unlocked." : "Not quite. Review the key concepts and try again."}</p>}
       </div>
     </div>
   );

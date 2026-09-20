@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { Award, Copy, ExternalLink } from "lucide-react";
 
-export default function CertificateCard({ courseSlug }: { courseSlug: string }) {
+export default function CertificateCard({ courseSlug, lessonCount }: { courseSlug: string; lessonCount: number }) {
   const [certificateId, setCertificateId] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);\n  const [completed, setCompleted] = useState(false);\n  const [checking, setChecking] = useState(true);\n\n  useEffect(() => {\n    fetch("/api/progress?course=" + encodeURIComponent(courseSlug), { cache: "no-store" })\n      .then(res => res.json())\n      .then(data => {\n        if (data.authenticated && Array.isArray(data.progress)) {\n          setCompleted(new Set(data.progress.map((item: { lesson_slug: string }) => item.lesson_slug)).size > 0);\n        }\n      })\n      .catch(() => {})\n      .finally(() => setChecking(false));\n  }, [courseSlug]);
+  const [busy, setBusy] = useState(false);\n  const [completed, setCompleted] = useState(false);\n  const [checking, setChecking] = useState(true);\n\n  useEffect(() => {\n    fetch("/api/progress?course=" + encodeURIComponent(courseSlug), { cache: "no-store" })\n      .then(res => res.json())\n      .then(data => {\n        if (data.authenticated && Array.isArray(data.progress)) {\n          setCompleted(new Set(data.progress.map((item: { lesson_slug: string }) => item.lesson_slug)).size >= lessonCount);\n        }\n      })\n      .catch(() => {})\n      .finally(() => setChecking(false));\n  }, [courseSlug, lessonCount]);
 
   async function issue() {
     setBusy(true); setError("");

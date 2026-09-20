@@ -32,7 +32,12 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/profile") || request.nextUrl.pathname.startsWith("/admin")) {
+  const protectedRoute =
+    request.nextUrl.pathname.startsWith("/dashboard") ||
+    request.nextUrl.pathname.startsWith("/profile") ||
+    request.nextUrl.pathname.startsWith("/admin");
+
+  if (!user && protectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/sign-in";
     url.searchParams.set("next", request.nextUrl.pathname);

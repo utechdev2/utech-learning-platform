@@ -2,6 +2,7 @@ export type Lesson = {
   slug: string;
   title: string;
   summary: string;
+  content?: string;
   points: string[];
   quiz: { question: string; options: string[]; answer: number };
 };

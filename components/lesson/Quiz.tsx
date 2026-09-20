@@ -18,7 +18,7 @@ export default function Quiz({
       await fetch("/api/quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseSlug, lessonSlug, score: selected === answer ? 100 : 0 }),
+        body: JSON.stringify({ courseSlug, lessonSlug, selectedAnswer: selected }),
       });
     } catch {}
   }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { UserCircle } from "lucide-react";
 import StudentNav from "@/components/layout/StudentNav";
 import ProfileForm from "@/components/profile/ProfileForm";
+import SignOutButton from "@/components/auth/SignOutButton";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ProfilePage() {
@@ -20,7 +21,7 @@ export default async function ProfilePage() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0b1f3a] font-black text-white">U</span><span className="font-black text-[#0b1f3a]">UTECH Learning Hub</span></Link>
-          <span className="hidden text-sm text-slate-400 md:block">{email}</span>
+          <div className="flex items-center gap-3"><span className="hidden text-sm text-slate-400 md:block">{email}</span><SignOutButton /></div>
         </div>
       </header>
       <StudentNav />
